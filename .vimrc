@@ -1,35 +1,84 @@
+call plug#begin('~/.vim/plugged')
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
+Plug 'junegunn/fzf.vim'
+Plug 'easymotion/vim-easymotion'
+Plug 'airblade/vim-gitgutter'
+call plug#end()
+
+let NERDTreeMapOpenInTab='<ENTER>'
+
+" Config NERDTree shortcuts
+nnoremap <C-n> :NERDTreeToggle<CR>
+nnoremap <C-f> :NERDTreeFind<CR>
+
+" Config coc.vim
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
+
+" Config FZF
+nnoremap <C-p> :FZF<CR>
+
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+command! -bang Colors
+  \ call fzf#vim#colors({'left': '15%', 'options': '--reverse --margin 30%,0'}, <bang>0)
+
+command! -bang -nargs=* Ag
+  \ call fzf#vim#ag(<q-args>,
+  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \                 <bang>0)
+
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+
+" Config gitgutter
+let g:gitgutter_terminal_reports_focus=0
+:set updatetime=100
+
+nmap hp <Plug>(GitGutterPreviewHunk)
+nmap hd <Plug>(GitGutterUndoHunk)
+nmap h] <Plug>(GitGutterNextHunk)
+nmap h[ <Plug>(GitGutterPrevHunk)
+
+" Config vim-easymotion
+nmap <silent> ;; <Plug>(easymotion-overwin-f)
+
+set encoding=utf-8
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'Valloric/YouCompleteMe'
-
-call vundle#end()            " required
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
-
 syntax on
 set number
-set tabstop=4
+set tabstop=2 shiftwidth=2 expandtab
 set cursorline
+set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:·
+set list
 
 set backspace=2   " Backspace deletes like most programs in insert mode
 set nobackup
@@ -46,6 +95,11 @@ set laststatus=2  " Always display the status line
 set splitbelow
 set splitright
 
+" Quicker split panes
+nnoremap <C-i> <C-w>v
+nnoremap <C-o> <C-w>s
+nnoremap <C-w> <C-w>q
+
 " Quicker window movement
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
@@ -55,11 +109,6 @@ nnoremap <C-l> <C-w>l
 " Always use vertical diffs
 set diffopt+=vertical
 
-" Get off my lawn
-nnoremap <Left> <C-w>< <CR>
-nnoremap <Right> <C-w>> <CR>
-nnoremap <Up> <C-w>+ <CR>
-nnoremap <Down> <C-w>- <CR>
-
-" Config NERDTree shortcuts
-nnoremap <C-n> :NERDTreeToggle
+" Use symtem clipboard as default
+set clipboard=unnamed
+set clipboard+=unnamedplus
